@@ -1,86 +1,116 @@
-
-//board
+// board
 var blockSize = 25;
 var rows = 20;
 var cols = 20;
 var board;
 var context;
 
-//snake head
+// snake
 var snakeX = blockSize * 5;
 var snakeY = blockSize * 5;
-
 var velocityX = 0;
 var velocityY = 0;
-
 var snakeBody = [];
 
-//food
+// food
 var foodX;
 var foodY;
 
-window.onload = function(){
-    board = document. getElementById("board");
+// score
+var score = 0;
+
+window.onload = function () {
+    board = document.getElementById("board");
     board.height = rows * blockSize;
     board.width = cols * blockSize;
-    context = board.getContext("2D"); //used for drawing on the board
+    context = board.getContext("2d");
 
     placeFood();
-    document.addEventListener("keyup", changeDirection);
-    //update();
-    setInterval(update, 1000/10); //100 milliseconds
-}
+    document.addEventListener("keydown", changeDirection); // smoother than keyup
+    setInterval(update, 100); // game speed
+};
 
 function update() {
-    context.fillStyle="#031533";
-    context.fillRect(0, 0, board.width, board,height);
+    // background
+    context.fillStyle = "black";
+    context.fillRect(0, 0, board.width, board.height);
 
-    context.fillStyle="#9c0e0e"
-    context.fillRect([foodX, FoodY]);
+    // draw food
+    context.fillStyle = "red";
+    context.fillRect(foodX, foodY, blockSize, blockSize);
 
-    if (snakeX == foodX && snakeY == FoodY){
-        snakeBody.push([foodX, foodY, blockSize, blockSize])
+    // check if food eaten
+    if (snakeX === foodX && snakeY === foodY) {
+        snakeBody.push([foodX, foodY]);
+        score++;
         placeFood();
     }
 
-    for (let i = snakeBody.length-1; i >0; i--){
-        snakeBody[i] = snakeBody[i-1];
+    // move body
+    for (let i = snakeBody.length - 1; i > 0; i--) {
+        snakeBody[i] = [...snakeBody[i - 1]];
     }
-    if (snakeBody.length){
-        snakeBody [0] = [snakeX, snakeY];
+    if (snakeBody.length) {
+        snakeBody[0] = [snakeX, snakeY];
     }
 
-    context.fillStyle="#32dbbf";
+    // move head
     snakeX += velocityX * blockSize;
     snakeY += velocityY * blockSize;
+
+    // draw snake
+    context.fillStyle = "#32dbbf";
     context.fillRect(snakeX, snakeY, blockSize, blockSize);
-    for(let i = 0; i < snakeBody.length; i ++) {
-        context.fillRect(snakeBody[i][0], snakeBody[i][1], blockSize, blockSize)
+
+    for (let i = 0; i < snakeBody.length; i++) {
+        context.fillRect(snakeBody[i][0], snakeBody[i][1], blockSize, blockSize);
     }
+
+    // game over (walls)
+    if (
+        snakeX < 0 ||
+        snakeX >= cols * blockSize ||
+        snakeY < 0 ||
+        snakeY >= rows * blockSize
+    ) {
+        gameOver();
+    }
+
+    // game over (self collision)
+    for (let i = 0; i < snakeBody.length; i++) {
+        if (snakeX === snakeBody[i][0] && snakeY === snakeBody[i][1]) {
+            gameOver();
+        }
+    }
+
+    // score display
+    context.fillStyle = "white";
+    context.font = "20px monospace";
+    context.fillText("Score: " + score, 10, 20);
 }
 
-function changeDirection(){
-    if (e.code == "ArrowUp" && velocityY != 1){
+function changeDirection(e) {
+    if (e.code === "ArrowUp" && velocityY !== 1) {
         velocityX = 0;
         velocityY = -1;
-    }
-    else if (e.code == "ArrowDown" && velocityY != -1){
+    } else if (e.code === "ArrowDown" && velocityY !== -1) {
         velocityX = 0;
         velocityY = 1;
-    }
-    else if (e.code == "ArrowLeft" && velocityX != 1){
+    } else if (e.code === "ArrowLeft" && velocityX !== 1) {
         velocityX = -1;
         velocityY = 0;
-    }
-    else if (e.code == "ArrowRight" && velocityX != -1){
+    } else if (e.code === "ArrowRight" && velocityX !== -1) {
         velocityX = 1;
         velocityY = 0;
     }
 }
 
-function placeFood(){
-    //0.1) * cols -> (0-19.9999) -> (0-19) * 25
-    foodX = Math.floor(Math.random()* cols) * blocksize;
-    foodY = Math.floor(Math.random()* rows) * blockSize;
-    
+function placeFood() {
+    foodX = Math.floor(Math.random() * cols) * blockSize;
+    foodY = Math.floor(Math.random() * rows) * blockSize;
+}
+
+function gameOver() {
+    alert("Game Over! Score: " + score);
+    location.reload();
 }
