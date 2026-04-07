@@ -1,26 +1,26 @@
-// board
+// Board
 var blockSize = 25;
 var rows = 20;
 var cols = 20;
 var board;
 var context;
 
-// snake
+// Snake
 var snakeX = blockSize * 5;
 var snakeY = blockSize * 5;
 var velocityX = 0;
 var velocityY = 0;
 var snakeBody = [];
 
-// food
+// Food
 var foodX;
 var foodY;
 
-// score
+// Score
 var score = 0;
 var highScore = localStorage.getItem("highScore") || 0;
 
-// game state
+//Game State
 var gameRunning = true;
 
 window.onload = function () {
@@ -37,22 +37,22 @@ window.onload = function () {
 function update() {
     if (!gameRunning) return;
 
-    // background
+    // Background
     context.fillStyle = "black";
     context.fillRect(0, 0, board.width, board.height);
 
-    // food
+    // Food
     context.fillStyle = "red";
     context.fillRect(foodX, foodY, blockSize, blockSize);
 
-    // eat food
+    // Eat Food
     if (snakeX === foodX && snakeY === foodY) {
         snakeBody.push([foodX, foodY]);
         score++;
         placeFood();
     }
 
-    // move body
+    // Move body
     for (let i = snakeBody.length - 1; i > 0; i--) {
         snakeBody[i] = [...snakeBody[i - 1]];
     }
@@ -60,11 +60,11 @@ function update() {
         snakeBody[0] = [snakeX, snakeY];
     }
 
-    // move head
+    // Move Head
     snakeX += velocityX * blockSize;
     snakeY += velocityY * blockSize;
 
-    // draw snake
+    // Draw Snake
     context.fillStyle = "#32dbbf";
     context.fillRect(snakeX, snakeY, blockSize, blockSize);
 
@@ -72,7 +72,7 @@ function update() {
         context.fillRect(snakeBody[i][0], snakeBody[i][1], blockSize, blockSize);
     }
 
-    // wall collision
+    // Wall Collision
     if (
         snakeX < 0 ||
         snakeX >= cols * blockSize ||
@@ -82,14 +82,14 @@ function update() {
         gameOver();
     }
 
-    // self collision
+    // Self Collision
     for (let i = 0; i < snakeBody.length; i++) {
         if (snakeX === snakeBody[i][0] && snakeY === snakeBody[i][1]) {
             gameOver();
         }
     }
 
-    // score display
+    // Score Display
     context.fillStyle = "white";
     context.font = "20px monospace";
     context.fillText("Score: " + score, 10, 20);
@@ -97,7 +97,7 @@ function update() {
 }
 
 function changeDirection(e) {
-    // restart game
+    // Restart Game
     if (!gameRunning && e.code === "Space") {
         resetGame();
         return;
@@ -124,7 +124,7 @@ function placeFood() {
 }
 
 function gameOver() {
-    // save high score
+    // Save High Score
     if (score > highScore) {
         highScore = score;
         localStorage.setItem("highScore", highScore);
@@ -132,7 +132,7 @@ function gameOver() {
 
     gameRunning = false;
 
-    // draw game over screen
+    // Draw Game Over Screen
     context.fillStyle = "white";
     context.font = "30px monospace";
     context.fillText("Game Over", 80, 250);
