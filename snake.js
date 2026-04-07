@@ -18,6 +18,10 @@ var foodY;
 
 // score
 var score = 0;
+var highScore = localStorage.getItem("highScore") || 0;
+
+// game state
+var gameRunning = true;
 
 window.onload = function () {
     board = document.getElementById("board");
@@ -26,20 +30,22 @@ window.onload = function () {
     context = board.getContext("2d");
 
     placeFood();
-    document.addEventListener("keydown", changeDirection); // smoother than keyup
-    setInterval(update, 100); // game speed
+    document.addEventListener("keydown", changeDirection);
+    setInterval(update, 100);
 };
 
 function update() {
+    if (!gameRunning) return;
+
     // background
     context.fillStyle = "black";
     context.fillRect(0, 0, board.width, board.height);
 
-    // draw food
+    // food
     context.fillStyle = "red";
     context.fillRect(foodX, foodY, blockSize, blockSize);
 
-    // check if food eaten
+    // eat food
     if (snakeX === foodX && snakeY === foodY) {
         snakeBody.push([foodX, foodY]);
         score++;
@@ -66,7 +72,7 @@ function update() {
         context.fillRect(snakeBody[i][0], snakeBody[i][1], blockSize, blockSize);
     }
 
-    // game over (walls)
+    // wall collision
     if (
         snakeX < 0 ||
         snakeX >= cols * blockSize ||
@@ -76,7 +82,7 @@ function update() {
         gameOver();
     }
 
-    // game over (self collision)
+    // self collision
     for (let i = 0; i < snakeBody.length; i++) {
         if (snakeX === snakeBody[i][0] && snakeY === snakeBody[i][1]) {
             gameOver();
@@ -87,9 +93,16 @@ function update() {
     context.fillStyle = "white";
     context.font = "20px monospace";
     context.fillText("Score: " + score, 10, 20);
+    context.fillText("High: " + highScore, 10, 45);
 }
 
 function changeDirection(e) {
+    // restart game
+    if (!gameRunning && e.code === "Space") {
+        resetGame();
+        return;
+    }
+
     if (e.code === "ArrowUp" && velocityY !== 1) {
         velocityX = 0;
         velocityY = -1;
@@ -110,21 +123,23 @@ function placeFood() {
     foodY = Math.floor(Math.random() * rows) * blockSize;
 }
 
-function gameOver(){
-    //save high score
-    if (score > highscore){
-        highscore = score;
-        localStorage.setItem("highscore", highscore)
+function gameOver() {
+    // save high score
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem("highScore", highScore);
     }
-}
-gameRunning = false;
 
-//draw game over screen
-context.fillStyle = "white";
-context.font = "30px monospace"; 
-context.fillText("Game Over",80,250);
-context.font = "20px monospace";
-context.fillText("Press space to restart", 40, 300);
+    gameRunning = false;
+
+    // draw game over screen
+    context.fillStyle = "white";
+    context.font = "30px monospace";
+    context.fillText("Game Over", 80, 250);
+    context.font = "20px monospace";
+    context.fillText("Press SPACE to Restart", 40, 300);
+}
+
 function resetGame() {
     snakeX = blockSize * 5;
     snakeY = blockSize * 5;
