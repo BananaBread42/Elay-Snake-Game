@@ -110,7 +110,28 @@ function placeFood() {
     foodY = Math.floor(Math.random() * rows) * blockSize;
 }
 
-function gameOver() {
-    alert("Game Over! Score: " + score);
-    location.reload();
+function gameOver(){
+    //save high score
+    if (score > highscore){
+        highscore = score;
+        localStorage.setItem("highscore", highscore)
+    }
+}
+gameRunning = false;
+
+//draw game over screen
+context.fillStyle = "white";
+context.font = "30px monospace"; 
+context.fillText("Game Over",80,250);
+context.font = "20px monospace";
+context.fillText("Press space to restart", 40, 300);
+function resetGame() {
+    snakeX = blockSize * 5;
+    snakeY = blockSize * 5;
+    velocityX = 0;
+    velocityY = 0;
+    snakeBody = [];
+    score = 0;
+    gameRunning = true;
+    placeFood();
 }
